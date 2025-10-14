@@ -27,14 +27,12 @@
 
 //#endregion
 
-
 // #region 4. Implementing Route-based Lazy Loading
 // import { ResolveFn, Routes } from '@angular/router';
 // import { NewTaskComponent, canLeaveEditPage } from '../tasks/new-task/new-task.component';
 // import { Task } from '../tasks/task/task.model';
 // import { inject } from '@angular/core';
 // import { TasksService } from '../tasks/tasks.service';
-
 
 // const resolveUserTasks: ResolveFn<Task[]> = (
 //   activatedRouteSnapshot,
@@ -56,7 +54,6 @@
 
 //   return tasks.length ? tasks : [];
 // };
-
 
 // export const routes: Routes = [
 //   {
@@ -81,34 +78,70 @@
 
 //#endregion
 
-
-
 // #region 5. Lazy Loading Entire Route Groups
+// import { Routes } from '@angular/router';
+
+// import { TasksComponent, resolveUserTasks } from '../tasks/tasks.component';
+// import { NewTaskComponent, canLeaveEditPage } from '../tasks/new-task/new-task.component';
+
+// export const routes: Routes = [
+//   {
+//     path: '',
+//     redirectTo: 'tasks',
+//     pathMatch: 'full',
+//   },
+//   {
+//     path: 'tasks', // <your-domain>/users/<uid>/tasks
+//     component: TasksComponent,
+//     runGuardsAndResolvers: 'always',
+//     resolve: {
+//       userTasks: resolveUserTasks,
+//     },
+//   },
+//   {
+//     path: 'tasks/new',
+//     component: NewTaskComponent,
+//     canDeactivate: [canLeaveEditPage]
+//   },
+// ];
+
+//#endregion
+
+//#region 6. Using Lazy Loading & Routing to Lazy-load Services
 import { Routes } from '@angular/router';
 
 import { TasksComponent, resolveUserTasks } from '../tasks/tasks.component';
-import { NewTaskComponent, canLeaveEditPage } from '../tasks/new-task/new-task.component';
+import {
+  NewTaskComponent,
+  canLeaveEditPage,
+} from '../tasks/new-task/new-task.component';
+import { TasksService } from '../tasks/tasks.service';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'tasks',
-    pathMatch: 'full',
-  },
-  {
-    path: 'tasks', // <your-domain>/users/<uid>/tasks
-    component: TasksComponent,
-    runGuardsAndResolvers: 'always',
-    resolve: {
-      userTasks: resolveUserTasks,
-    },
-  },
-  {
-    path: 'tasks/new',
-    component: NewTaskComponent,
-    canDeactivate: [canLeaveEditPage]
+    providers: [TasksService],
+    children: [
+      {
+        path: '',
+        redirectTo: 'tasks',
+        pathMatch: 'full',
+      },
+      {
+        path: 'tasks', // <your-domain>/users/<uid>/tasks
+        component: TasksComponent,
+        runGuardsAndResolvers: 'always',
+        resolve: {
+          userTasks: resolveUserTasks,
+        },
+      },
+      {
+        path: 'tasks/new',
+        component: NewTaskComponent,
+        canDeactivate: [canLeaveEditPage],
+      },
+    ],
   },
 ];
 
 //#endregion
-
